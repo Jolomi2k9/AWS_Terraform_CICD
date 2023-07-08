@@ -21,6 +21,10 @@ resource "aws_lb" "alb" {
   }
 }
 
+data "aws_lb" "ld_arn" {
+  arn  = aws_lb.alb.arn
+}
+
 resource "aws_lb_target_group" "tg" {
   name     = "lb-tg-${substr(uuid(), 0, 3)}"
   port     = var.tg_port
@@ -50,4 +54,20 @@ resource "aws_lb_listener" "alb_listener" {
     type             = "forward"
     target_group_arn = aws_lb_target_group.tg.arn
   }
+}
+
+# Request and validate an SSL certificate from AWS Certificate Manager 
+resource "aws_acm_certificate" "my_certificate" {
+  domain_name       = data.aws_lb.ld_arn.dns_name
+  validation_method = "DNS"
+
+  tags = {
+    Name = " lb SSL certificate"
+  }
+}
+
+# Associate the SSL certificate with the ALB listener
+resource "aws_lb_listener_certificate" "my_certificate" {
+  listener_arn = aws_lb_listener.alb_listener.arn
+  certificate_arn = aws_acm_certificate.my_certificate.arn
 }
