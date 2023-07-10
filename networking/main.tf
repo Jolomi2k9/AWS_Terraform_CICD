@@ -81,29 +81,29 @@ resource "aws_internet_gateway" "igw" {
   }
 }
 
-# # Create an elastic IP for our NAT gateway
-# resource "aws_eip" "nat_eip"{
-#   count = var.public_sn_count
-#   #specify condition for creation
-#   depends_on = [aws_internet_gateway.igw]
+# Create an elastic IP for our NAT gateway
+resource "aws_eip" "nat_eip"{
+  count = var.public_sn_count
+  #specify condition for creation
+  depends_on = [aws_internet_gateway.igw]
 
-#   tags = {
-#     Name = "nat_eip-${count.index + 1}"
-#   }
-# }
+  tags = {
+    Name = "nat_eip-${count.index + 1}"
+  }
+}
 
-# # Create the NAT Gateway
-# resource "aws_nat_gateway" "nat_gw"{
-#   count = var.public_sn_count
-#   #associate an elastic ip
-#   allocation_id = aws_eip.nat_eip.*.id[count.index]
-#   ##pull index from created public subnets
-#   subnet_id = aws_subnet.public_subnet.*.id[count.index]
+# Create the NAT Gateway
+resource "aws_nat_gateway" "nat_gw"{
+  count = var.public_sn_count
+  #associate an elastic ip
+  allocation_id = aws_eip.nat_eip.*.id[count.index]
+  ##pull index from created public subnets
+  subnet_id = aws_subnet.public_subnet.*.id[count.index]
 
-#   tags = {
-#     Name = "Nat-Gateway-${count.index + 1}"
-#   }
-# }
+  tags = {
+    Name = "Nat-Gateway-${count.index + 1}"
+  }
+}
 
 resource "aws_route_table" "public_rt" {
   vpc_id = aws_vpc.production_vpc.id
