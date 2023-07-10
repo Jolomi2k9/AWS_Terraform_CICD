@@ -80,7 +80,7 @@ locals {
           from        = var.http_port
           to          = var.http_port
           protocol    = "tcp"
-          # security_groups = [aws_security_group.alb_sg.id]
+          # security_groups = [aws_security_group.alb_sg.id]          
           cidr_blocks = [var.access_ip]
         }        
       }
