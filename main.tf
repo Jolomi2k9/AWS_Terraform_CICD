@@ -59,7 +59,7 @@ module "autoscaling" {
   asg_min_size = 1
   asg_desired_capacity = 2
   lb_target_group_arn = module.loadbalancing.tg_arn
-  asg_vpc_zone_identifier = module.networking.public_subnets
+  asg_vpc_zone_identifier = module.networking.private_subnets
   linux2_ami      = "ami-09f6caae59175ba13"
   instance_type = "t2.micro"
   key_name = module.compute.key_pair

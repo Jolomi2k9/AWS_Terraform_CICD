@@ -47,9 +47,7 @@ resource "aws_lb_listener" "alb_listener" {
   load_balancer_arn = aws_lb.alb.arn
   port              = var.listener_port
   protocol          = var.listener_protocol
-  # ssl_policy        = "ELBSecurityPolicy-2016-08"
-  # certificate_arn   = "arnawsiam:187416307283server-certificate/test_cert_rab3wuqwgja25ct3n4jdj2tzu4"
-
+  
   default_action {
     type             = "forward"
     target_group_arn = aws_lb_target_group.tg.arn
