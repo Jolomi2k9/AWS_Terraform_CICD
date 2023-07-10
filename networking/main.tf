@@ -126,8 +126,8 @@ resource "aws_route_table" "private_rt" {
   route{
     cidr_block = "0.0.0.0/0"
     #pull index from created natgateways
-    #nat_gateway_id = aws_nat_gateway.nat_gw.*.id[count.index]
-    gateway_id = aws_internet_gateway.igw.id
+    nat_gateway_id = aws_nat_gateway.nat_gw.*.id[count.index]
+    # gateway_id = aws_internet_gateway.igw.id
   }
 
   tags = {
