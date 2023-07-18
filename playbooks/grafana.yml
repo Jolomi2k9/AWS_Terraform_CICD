@@ -1,0 +1,27 @@
+---
+- name: Bootstrap Main Node
+  hosts: localhost #main
+  become: true
+  vars:
+    listen_address: 0.0.0.0
+    listen_port: 9090
+  
+  tasks:
+  - name: download apt key
+    ansible.builtin.apt_key:
+      url: https://apt.grafana.com/gpg.key
+      state: present
+  - name: Add Grafana repo to sources.list
+    ansible.builtin.apt_repository:
+      repo: deb https://apt.grafana.com stable main
+      filename: grafana
+      state: present
+  - name: Update apt cache and install Grafana
+    ansible.builtin.apt:
+      name: grafana
+      update_cache: true
+  - name: Ensure grafana is started and enabled
+    ansible.builtin.systemd:
+      name: grafana-server
+      state: started
+      enabled: true
