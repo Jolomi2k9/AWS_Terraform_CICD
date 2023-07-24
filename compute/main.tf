@@ -26,6 +26,62 @@ resource "aws_key_pair" "tr_auth" {
   public_key = file(var.public_key_path)
 }
 
+resource "aws_instance" "ansible" {
+  #count         = var.instance_count
+  instance_type = var.instance_type
+  ami           = var.linux2_ami
+
+  tags = {
+    Name = "ansible"
+  }
+
+  key_name               = aws_key_pair.tr_auth.id
+  vpc_security_group_ids = [var.public_sg]
+  subnet_id              = var.public_subnets[1]   
+
+  # provisioner "local-exec" {
+  #   command = "ansible-playbook playbooks/main-playbook.yml"    
+  # }
+  
+  iam_instance_profile {
+    name = aws_iam_instance_profile.tr_instance_profile.name
+  }
+}
+# create an IAM role for the instance
+resource "aws_iam_instance_profile" "tr_instance_profile" {
+  name = "tr_instance_profile"
+  role = aws_iam_role.tr_instance_role.name
+}
+# create an IAM role
+resource "aws_iam_role" "tr_instance_role" {
+  name = "tr_instance_role"
+
+  assume_role_policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Action": "sts:AssumeRole",
+      "Principal": {
+        "Service": "ec2.amazonaws.com"
+      },
+      "Effect": "Allow",
+      "Sid": ""
+    }
+  ]
+}
+EOF
+} 
+# attach the policy to the role
+resource "aws_iam_role_policy_attachment" "tr_instance_role_policy" {
+  role       = aws_iam_role.tr_instance_role.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEC2FullAccess"
+}
+
+
+
+
+
 resource "aws_instance" "jenkins" {
   #count         = var.instance_count
   instance_type = var.instance_type 
@@ -38,23 +94,15 @@ resource "aws_instance" "jenkins" {
   key_name               = aws_key_pair.tr_auth.id
   vpc_security_group_ids = [var.jenkins_sg]
   subnet_id              = var.public_subnets[1]
-  user_data              = file(var.jenkins_path)  
-}
+  #user_data              = file(var.jenkins_path)
 
-resource "aws_instance" "ansible" {
-  #count         = var.instance_count
-  instance_type = var.instance_type
-  ami           = var.linux2_ami
-
-  tags = {
-    Name = "ansible"
+  
+  iam_instance_profile {
+    name = aws_iam_instance_profile.tr_instance_profile.name
   }
 
-  key_name               = aws_key_pair.tr_auth.id
-  vpc_security_group_ids = [var.public_sg]
-  subnet_id              = var.public_subnets[1]
-  user_data              = file(var.ansible_path)  
 }
+
 
 resource "aws_instance" "sonarqube" {
   #count         = var.instance_count

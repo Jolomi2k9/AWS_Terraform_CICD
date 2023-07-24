@@ -1,0 +1,24 @@
+
+# Path: playbooks\ansible.yml
+---
+- name: Install Ansible
+  hosts: localhost
+  become: true
+
+  tasks:
+  - name: Install software-properties-common
+    apt:
+      name: software-properties-common
+      state: present
+  - name: Add Ansible repo to sources.list
+    apt_repository:
+      repo: ppa:ansible/ansible
+      state: present
+  - name: Update apt cache
+    apt:
+      update_cache: true
+  - name: Install Ansible
+    apt:
+      name: ansible
+      state: present
+
